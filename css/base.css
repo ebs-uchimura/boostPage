@@ -1,0 +1,69 @@
+/**
+/* base.css
+**/
+
+body {
+  margin: 50px;
+  font-size: 1rem;
+}
+
+h1 {
+  font-size: 1.5rem;
+}
+
+h2 {
+  font-size: 1.3rem;
+}
+
+p {
+  margin: 10px, 0;
+}
+
+ul {
+  list-style: none;
+  padding-inline-start: 10px;
+  margin-block-start: 0;
+  margin-block-end: 0;
+}
+
+dt {
+  margin-top: 5px;
+}
+
+dd {
+  margin-inline-start: 0
+}
+
+table {
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+#form {
+  margin: 20px, 0;
+}
+
+#resultmap {
+  margin-top: 30px
+}
+
+#resultmap td {
+  border: solid #000 1px;
+  width: 50px;
+}
+
+#resultmap td:nth-child(1) {
+  width: 90px;
+}
+
+#resultmap td:nth-child(2) {
+  width: 120px;
+}
+
+#resultmap td:nth-child(3) {
+  width: 140px;
+}
+
+#resulthead {
+  background-color: sandybrown;
+}
