@@ -67,7 +67,7 @@ $(function() {
     dateFormat: "yy-mm-dd", // 年月日
     duration: "fast", // 高速
 
-  }).on('change', async function() {
+  }).on('change', function() {
     // 都道府県
     const pref = $pref.val();
     // 選択市町村
@@ -78,21 +78,24 @@ $(function() {
     // 初期値以外なら
     if (pref != "都道府県") {
       // 再表示
-      await start(date, pref);
-      // 非表示処理
-      for (let i = 1; i < resultArr.length; i++) {
-        // 初期値以外なら
-        if (city != "市区町村") {
-          // 該当以外なら
-          if (city != resultArr[i][1]) {
-            // 隠す
-            $(`.row${i}`).hide();
-          } else {
-            // 表示
-            $(`.row${i}`).show();
+      start(date).then(function(arr) {
+        // グローバル保持
+        resultArr = arr;
+        // 非表示処理
+        for (let i = 1; i < arr.length; i++) {
+          // 初期値以外なら
+          if (city != "市区町村") {
+            // 該当以外なら
+            if (city != arr[i][1]) {
+              // 隠す
+              $(`.row${i}`).hide();
+            } else {
+              // 表示
+              $(`.row${i}`).show();
+            }
           }
         }
-      }
+      });
 
     } else {
       // 配列初期化
@@ -149,7 +152,7 @@ $(function() {
       }
     }
     // 実行
-    start(date, prefName);
+    start(date);
   });
 
   // 市町村選択時
@@ -172,35 +175,59 @@ $(function() {
   });
 
   // CSV取得しテーブルへ格納
-  async function start(date, prefname) {
-    try {
-      // 取得結果
-      resultArr = await getCSV(date);
-      // テーブル初期化
-      $("#resultmap #resultbody").empty();
-      // 行ループ
-      for (let i = 1; i < resultArr.length; i++) {
+  function start(date) {
+    return new Promise(function(resolve, reject) {
+      try {
+        // 取得結果
+        getCSV(date).then(function(arr) {
+          // テーブル作成
+          makeTB(arr);
+          // グローバル保持
+          resultArr = arr;
+          resolve(arr);
+        });
 
-        // 該当の都道府県
-        if (prefname == resultArr[i][0]) {
-          // 行を追加
-          $("#resultmap #resultbody").append(`<tr class=row${i}>`);
-          // 列ループ
-          for (let j = 0; j < 21; j++) {
-            // 列を追加
-            $(`.row${i}`).append(`<td>${resultArr[i][j]}</td>`);
-          }
-          // 終了タグ
-          $("#resultmap #resultbody").append('</tr>');
-        }
+      } catch(e) {
+        // エラー表示
+        console.log(e);
+        reject(e);
       }
-      // 終了タグ
-      $("#resultmap #resultmap").append('</table>');
+    });
+  }
 
-    } catch(e) {
-      // エラー表示
-      console.log(e);
-    }
+  // テーブル作成関数
+  function makeTB(arr) {
+    return new Promise(function(resolve, reject) {
+      try {
+        // 選択都道府県
+        const prefName = $pref.val();
+        // テーブル初期化
+        $("#resultmap #resultbody").empty();
+        // 行ループ
+        for (let i = 1; i < arr.length; i++) {
+
+          // 該当の都道府県
+          if (prefName == arr[i][0]) {
+            // 行を追加
+            $("#resultmap #resultbody").append(`<tr class=row${i}>`);
+            // 列ループ
+            for (let j = 0; j < 21; j++) {
+              // 列を追加
+              $(`.row${i}`).append(`<td>${arr[i][j]}</td>`);
+            }
+            // 終了タグ
+            $("#resultmap #resultbody").append('</tr>');
+          }
+        }
+        // 終了タグ
+        $("#resultmap #resultmap").append('</table>');
+        resolve();
+      } catch(e) {
+        // エラー表示
+        console.log(e);
+        reject(e);
+      }
+    });
   }
 
   // CSV取得関数
@@ -225,6 +252,7 @@ $(function() {
       } catch(e) {
         // エラー表示
         console.log(e);
+        reject(e);
       }
     });
   }
